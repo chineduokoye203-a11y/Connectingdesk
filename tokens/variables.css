@@ -1,0 +1,197 @@
+/* Auto-generated CSS Variables from Design & Color Tokens */
+
+:root {
+  /* Light Theme Color Roles */
+  --color-primary-color: hsl(208, 99%, 55%);
+  --color-on-primary-color: hsl(0, 0%, 100%);
+  --color-primary-container-color: hsl(215, 100%, 82%);
+  --color-on-primary-container-color: hsl(207, 100%, 25%);
+  --color-secondary-color: hsl(206, 66%, 35%);
+  --color-on-secondary-color: hsl(0, 0%, 100%);
+  --color-secondary-container-color: hsl(210, 100%, 80%);
+  --color-on-secondary-container-color: hsl(203, 100%, 23%);
+  --color-tertiary-color: hsl(208, 33%, 37%);
+  --color-on-tertiary-color: hsl(0, 0%, 100%);
+  --color-tertiary-container-color: hsl(210, 62%, 79%);
+  --color-on-tertiary-container-color: hsl(207, 44%, 28%);
+  --color-error-color: hsl(359, 85%, 50%);
+  --color-on-error-color: hsl(0, 0%, 100%);
+  --color-error-container-color: hsl(9, 100%, 96%);
+  --color-on-error-container-color: hsl(359, 85%, 50%);
+  --color-background-color: hsl(240, 100%, 99%);
+  --color-on-background-color: hsl(210, 11%, 11%);
+  --color-surface-color: hsl(230, 75%, 98%);
+  --color-on-surface-color: hsl(210, 11%, 11%);
+  --color-surface-variant-color: hsl(206, 12%, 89%);
+  --color-on-surface-variant-color: hsl(206, 5%, 28%);
+  --color-outline-color: hsl(202, 5%, 67%);
+  --color-outline-variant-color: hsl(206, 12%, 89%);
+  --color-inverse-surface-color: hsl(206, 7%, 19%);
+  --color-inverse-on-surface-color: hsl(220, 23%, 95%);
+  --color-inverse-primary-color: hsl(215, 100%, 82%);
+  --color-surface-dim-color: hsl(220, 8%, 86%);
+  --color-surface-bright-color: hsl(230, 75%, 98%);
+  --color-surface-container-lowest-color: hsl(0, 0%, 100%);
+  --color-surface-container-low-color: hsl(230, 30%, 97%);
+  --color-surface-container-color: hsl(220, 19%, 94%);
+  --color-surface-container-high-color: hsl(220, 14%, 91%);
+  --color-surface-container-highest-color: hsl(220, 23%, 95%);
+}
+
+[data-theme="dark"] {
+  /* Dark Theme Color Roles */
+  --color-primary-color: hsl(208, 99%, 55%);
+  --color-on-primary-color: hsl(208, 100%, 18%);
+  --color-primary-container-color: hsl(207, 100%, 25%);
+  --color-on-primary-container-color: hsl(218, 100%, 91%);
+  --color-secondary-color: hsl(210, 100%, 80%);
+  --color-on-secondary-color: hsl(204, 100%, 16%);
+  --color-secondary-container-color: hsl(203, 100%, 23%);
+  --color-on-secondary-container-color: hsl(213, 100%, 91%);
+  --color-tertiary-color: hsl(210, 62%, 79%);
+  --color-on-tertiary-color: hsl(205, 73%, 18%);
+  --color-tertiary-container-color: hsl(207, 44%, 28%);
+  --color-on-tertiary-container-color: hsl(211, 100%, 90%);
+  --color-error-color: hsl(359, 85%, 55%);
+  --color-on-error-color: hsl(0, 0%, 100%);
+  --color-error-container-color: hsl(359, 60%, 18%);
+  --color-on-error-container-color: hsl(359, 85%, 72%);
+  --color-background-color: hsl(210, 11%, 7%);
+  --color-on-background-color: hsl(230, 11%, 89%);
+  --color-surface-color: hsl(210, 11%, 11%);
+  --color-on-surface-color: hsl(230, 11%, 89%);
+  --color-surface-variant-color: hsl(206, 5%, 28%);
+  --color-on-surface-variant-color: hsl(206, 6%, 78%);
+  --color-outline-color: hsl(210, 4%, 57%);
+  --color-outline-variant-color: hsl(206, 5%, 28%);
+  --color-inverse-surface-color: hsl(230, 11%, 89%);
+  --color-inverse-on-surface-color: hsl(206, 7%, 19%);
+  --color-inverse-primary-color: hsl(206, 100%, 33%);
+  --color-surface-dim-color: hsl(210, 11%, 5%);
+  --color-surface-bright-color: hsl(210, 11%, 16%);
+  --color-surface-container-lowest-color: hsl(210, 11%, 4%);
+  --color-surface-container-low-color: hsl(210, 11%, 10%);
+  --color-surface-container-color: hsl(210, 11%, 14%);
+  --color-surface-container-high-color: hsl(210, 11%, 18%);
+  --color-surface-container-highest-color: hsl(210, 11%, 22%);
+}
+
+:root {
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+
+  /* Spacing (8-point system) */
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.08), 0 4px 6px rgba(0,0,0,0.03);
+  --shadow-xl: 0 20px 25px rgba(0,0,0,0.10), 0 8px 10px rgba(0,0,0,0.04);
+  --shadow-2xl: 0 25px 50px rgba(0,0,0,0.15);
+  --shadow-inner: inset 0 2px 4px rgba(0,0,0,0.05);
+  --shadow-glow-primary: 0 0 20px hsla(256, 34%, 48%, 0.35);
+  --shadow-glow-secondary: 0 0 20px hsla(259, 11%, 40%, 0.35);
+  --shadow-glow-tertiary: 0 0 20px hsla(340, 21%, 41%, 0.35);
+  --shadow-glow-error: 0 0 20px hsla(0, 54%, 41%, 0.35);
+
+  /* Elevation */
+  --elevation-0: none;
+  --elevation-1: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --elevation-2: 0 3px 6px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+  --elevation-3: 0 6px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --elevation-4: 0 10px 20px rgba(0,0,0,0.09), 0 3px 6px rgba(0,0,0,0.04);
+  --elevation-5: 0 15px 30px rgba(0,0,0,0.10), 0 5px 10px rgba(0,0,0,0.06);
+
+  /* Typography Styles */
+  --font-display-large-family: Poppins, sans-serif;
+  --font-display-large-size: 64px;
+  --font-display-large-weight: 400;
+  --font-display-large-line-height: 89.6px;
+  --font-display-large-letter-spacing: -2.24px;
+  --font-display-large-style: normal;
+  --font-display-medium-family: Poppins, sans-serif;
+  --font-display-medium-size: 54px;
+  --font-display-medium-weight: 400;
+  --font-display-medium-line-height: 75.6px;
+  --font-display-medium-letter-spacing: -1.89px;
+  --font-display-medium-style: normal;
+  --font-display-small-family: Poppins, sans-serif;
+  --font-display-small-size: 44px;
+  --font-display-small-weight: 400;
+  --font-display-small-line-height: 61.6px;
+  --font-display-small-letter-spacing: -1.54px;
+  --font-display-small-style: normal;
+  --font-headline-large-family: Poppins, sans-serif;
+  --font-headline-large-size: 40px;
+  --font-headline-large-weight: 400;
+  --font-headline-large-line-height: 56px;
+  --font-headline-large-letter-spacing: -1.4px;
+  --font-headline-large-style: normal;
+  --font-headline-medium-family: Poppins, sans-serif;
+  --font-headline-medium-size: 36px;
+  --font-headline-medium-weight: 400;
+  --font-headline-medium-line-height: 50.4px;
+  --font-headline-medium-letter-spacing: -1.26px;
+  --font-headline-medium-style: normal;
+  --font-headline-small-family: Poppins, sans-serif;
+  --font-headline-small-size: 32px;
+  --font-headline-small-weight: 400;
+  --font-headline-small-line-height: 44.8px;
+  --font-headline-small-letter-spacing: -1.12px;
+  --font-headline-small-style: normal;
+  --font-title-large-family: Poppins, sans-serif;
+  --font-title-large-size: 14px;
+  --font-title-large-weight: 400;
+  --font-title-large-line-height: 19.6px;
+  --font-title-large-letter-spacing: -0.49px;
+  --font-title-large-style: normal;
+  --font-title-medium-family: Poppins, sans-serif;
+  --font-title-medium-size: 12px;
+  --font-title-medium-weight: 400;
+  --font-title-medium-line-height: 16.8px;
+  --font-title-medium-letter-spacing: -0.42px;
+  --font-title-medium-style: normal;
+  --font-title-small-family: Poppins, sans-serif;
+  --font-title-small-size: 11px;
+  --font-title-small-weight: 400;
+  --font-title-small-line-height: 15.4px;
+  --font-title-small-letter-spacing: -0.385px;
+  --font-title-small-style: normal;
+  --font-body-large-family: Poppins, sans-serif;
+  --font-body-large-size: 16px;
+  --font-body-large-weight: 400;
+  --font-body-large-line-height: 22.4px;
+  --font-body-large-letter-spacing: -0.56px;
+  --font-body-large-style: normal;
+  --font-body-medium-family: Poppins, sans-serif;
+  --font-body-medium-size: 14px;
+  --font-body-medium-weight: 400;
+  --font-body-medium-line-height: 19.6px;
+  --font-body-medium-letter-spacing: -0.49px;
+  --font-body-medium-style: normal;
+  --font-body-small-family: Poppins, sans-serif;
+  --font-body-small-size: 12px;
+  --font-body-small-weight: 400;
+  --font-body-small-line-height: 16.8px;
+  --font-body-small-letter-spacing: -0.42px;
+  --font-body-small-style: normal;
+}

@@ -1,0 +1,38 @@
+{
+  "name": "connectdesk",
+  "version": "1.0.0",
+  "description": "AI-assisted multi-tenant Customer Support Outsourcing platform for First Connect Edge.",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5.0.1",
+    "@prisma/client": "^7.9.1",
+    "@supabase/supabase-js": "^2.50.0",
+    "@tanstack/react-query": "^5.66.0",
+    "@upstash/ratelimit": "^2.0.0",
+    "lucide-react": "^0.525.0",
+    "next": "^16.3.0",
+    "next-auth": "^5.0.0-beta.25",
+    "nodemailer": "^8.0.5",
+    "openai": "^5.2.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-hook-form": "^7.54.2",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "@types/nodemailer": "^6.4.17",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.0",
+    "prisma": "^7.9.1",
+    "typescript": "^6.0.3"
+  }
+}
