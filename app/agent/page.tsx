@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { Numpad } from "@phosphor-icons/react";
 import {
   Headphones, Bell, MessageSquare, Sun, Moon, Mic, MicOff, Pause,
   PhoneOff, ArrowLeft, ArrowRight, Sparkles,
@@ -10,7 +9,7 @@ import {
   Phone, Mail, Inbox, Clock, CreditCard, Trophy, User, Delete, CornerUpRight, Pencil,
   Copy, Type, Paperclip, Smile, Link, Download, Image, Share, ChevronRight,
   Landmark, ShieldCheck,
-  Building2, KeyRound, LogOut, Star,
+  Building2, KeyRound, LogOut, Star, Grid2x2,
 } from "lucide-react";
 
 /* ─── Data ─────────────────────────────────── */
@@ -2833,7 +2832,7 @@ export default function AgentWorkspace() {
                       </button>
                       <div style={{ position: "relative" }} ref={dialPadRef}>
                         <button className="call-btn dialpad-btn" onClick={() => setDialPadOpen(!dialPadOpen)}>
-                          <div className="call-btn-circle"><Numpad size={16} /></div>
+                          <div className="call-btn-circle"><Grid2x2 size={16} /></div>
                           <span>Dial Pad</span>
                         </button>
                         {dialPadOpen && (
