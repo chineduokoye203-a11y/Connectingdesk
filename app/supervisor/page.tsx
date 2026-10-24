@@ -48,6 +48,58 @@ const TEAM: { id: string; name: string; initials: string; color: string; status:
   { id: "ag-9", name: "Ibrahim Bello", initials: "IB", color: "#805AD5", status: "Offline", principal: "CHOWDECK", callsToday: 0, tickets: 0, csat: 4.3, sla: 91, quality: 78, workload: 0, onCallFor: "-", talkPct: 0 },
 ];
 
+type InviteForm = {
+  fullName: string;
+  email: string;
+  phone: string;
+  employeeId: string;
+  principal: string;
+  role: string;
+  languages: string;
+  status: AgentStatus;
+  password: string;
+  confirmPassword: string;
+  sendInvite: boolean;
+};
+
+const AGENT_ROLES = ["CRM Agent", "Senior Agent", "Team Lead", "QA Specialist"];
+const INVITE_PRINCIPALS = ["CHOWDECK", "JUMIA", "JIJI NIGERIA"];
+const AGENT_COLORS = ["#7A5CFF", "#3080ff", "#E5484D", "#00875A", "#F68B1E", "#8F4E9B", "#12A594", "#D6409F", "#805AD5", "#0EA5E9"];
+
+const EMPTY_INVITE: InviteForm = {
+  fullName: "",
+  email: "",
+  phone: "",
+  employeeId: "",
+  principal: "CHOWDECK",
+  role: "CRM Agent",
+  languages: "English",
+  status: "Available",
+  password: "",
+  confirmPassword: "",
+  sendInvite: true,
+};
+
+type WorkItem = {
+  id: string;
+  type: "Ticket" | "Call";
+  customer: string;
+  title: string;
+  principal: string;
+  priority: "Low" | "Medium" | "High" | "Critical";
+};
+
+const WORK_ITEMS: WorkItem[] = [
+  { id: "wt-101", type: "Ticket", customer: "Sade Okafor", title: "Order not delivered on time", principal: "JUMIA", priority: "High" },
+  { id: "wc-102", type: "Call", customer: "Emeka Nwankwo", title: "Scheduled callback - refund dispute", principal: "CHOWDECK", priority: "Critical" },
+  { id: "wt-103", type: "Ticket", customer: "Kunle Adesanya", title: "Wrong item shipped to customer", principal: "CHOWDECK", priority: "High" },
+  { id: "wt-104", type: "Ticket", customer: "Bola Adeyemi", title: "Cannot reset account password", principal: "JUMIA", priority: "Medium" },
+  { id: "wc-105", type: "Call", customer: "Obinna Nnaemeke", title: "Scheduled callback - account reinstatement", principal: "JIJI NIGERIA", priority: "High" },
+  { id: "wt-106", type: "Ticket", customer: "Fatima Abubakar", title: "Duplicate order charge", principal: "JIJI NIGERIA", priority: "Critical" },
+  { id: "wc-107", type: "Call", customer: "Ada Okonkwo", title: "Callback - delivery SLA breach", principal: "CHOWDECK", priority: "Medium" },
+  { id: "wt-108", type: "Ticket", customer: "Uche Okonkwo", title: "Refund status enquiry", principal: "JUMIA", priority: "Low" },
+];
+
 const QUEUES = [
   { principal: "CHOWDECK", waiting: 12, avgWait: "1m 40s", longest: "4m 20s", staffed: 3, depth: 78 },
   { principal: "JUMIA", waiting: 7, avgWait: "2m 10s", longest: "5m 05s", staffed: 2, depth: 55 },
@@ -119,13 +171,8 @@ const NOTIFICATIONS: AppNotification[] = [
   { id: 4, icon: "AI", title: "AI policy flag", desc: "Emeka Obi mentioned an unapproved discount amount.", time: "2 hr ago", read: true },
 ];
 
-const PrincipalBadge = ({ principal, size = 20 }: { principal: string; size?: number }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-    <div style={{ width: size, height: size, borderRadius: 5, backgroundColor: PRINCIPAL_COLORS[principal] || "#666", display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: size * 0.45, fontWeight: 700, flexShrink: 0 }}>
-      {principal[0]}
-    </div>
-    <span>{principal}</span>
-  </div>
+const PrincipalBadge = ({ principal }: { principal: string; size?: number }) => (
+  <span>{principal}</span>
 );
 
 const AgentPill = ({ name, initials, color, size = 30 }: { name: string; initials: string; color: string; size?: number }) => (
@@ -174,6 +221,15 @@ export default function SupervisorDashboard() {
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState(NOTIFICATIONS);
   const [toast, setToast] = useState<string | null>(null);
+  const [team, setTeam] = useState(TEAM);
+  const [inviteOpen, setInviteOpen] = useState(false);
+  const [invite, setInvite] = useState<InviteForm>(EMPTY_INVITE);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [assignAgent, setAssignAgent] = useState<(typeof TEAM)[number] | null>(null);
+  const [assignFilter, setAssignFilter] = useState<"All" | "Ticket" | "Call">("All");
+  const [assignedIds, setAssignedIds] = useState<Set<string>>(new Set());
+  const [assignedItemIds, setAssignedItemIds] = useState<Set<string>>(new Set());
 
   const toggleTheme = () => {
     const next = theme === "light" ? "dark" : "light";
@@ -209,9 +265,71 @@ export default function SupervisorDashboard() {
     showToast(`Escalation ${id} updated.`);
   };
 
+  const openInvite = () => {
+    setInvite(EMPTY_INVITE);
+    setInviteError(null);
+    setShowPassword(false);
+    setInviteOpen(true);
+  };
+
+  const submitInvite = () => {
+    const name = invite.fullName.trim();
+    const email = invite.email.trim();
+    if (!name) { setInviteError("Full name is required."); return; }
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setInviteError("Enter a valid email address."); return; }
+    if (invite.password.length < 8) { setInviteError("Password must be at least 8 characters."); return; }
+    if (invite.password !== invite.confirmPassword) { setInviteError("Passwords do not match."); return; }
+
+    const initials = name.split(/\s+/).map((w) => w[0]).join("").slice(0, 2).toUpperCase();
+    const color = AGENT_COLORS[team.length % AGENT_COLORS.length];
+    const newAgent = {
+      id: `ag-${Date.now()}`,
+      name,
+      initials,
+      color,
+      status: invite.status,
+      principal: invite.principal,
+      callsToday: 0,
+      tickets: 0,
+      csat: 0,
+      sla: 100,
+      quality: 0,
+      workload: 0,
+      onCallFor: "-",
+      talkPct: 0,
+    };
+    setTeam((t) => [newAgent, ...t]);
+    setInviteOpen(false);
+    showToast(`${name} added${invite.sendInvite ? " - invite email sent" : " - credentials set"}.`);
+  };
+
+  const openAssign = (agent: (typeof TEAM)[number]) => {
+    setAssignAgent(agent);
+    setAssignFilter("All");
+    setAssignedIds(new Set());
+  };
+
+  const toggleAssignItem = (id: string) => {
+    setAssignedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
+      return next;
+    });
+  };
+
+  const confirmAssign = () => {
+    if (!assignAgent || assignedIds.size === 0) return;
+    setTeam((t) => t.map((a) => (a.id === assignAgent.id ? { ...a, workload: a.workload + assignedIds.size } : a)));
+    setAssignedItemIds((prev) => new Set([...prev, ...assignedIds]));
+    showToast(`${assignedIds.size} item${assignedIds.size > 1 ? "s" : ""} assigned to ${assignAgent.name}.`);
+    setAssignAgent(null);
+  };
+
   const markNotifsRead = () => setNotifications((n) => n.map((x) => ({ ...x, read: true })));
-  const activeAgents = TEAM.filter((a) => a.status !== "Offline");
-  const onCallAgents = TEAM.filter((a) => a.status === "On Call");
+  const activeAgents = team.filter((a) => a.status !== "Offline");
+  const onCallAgents = team.filter((a) => a.status === "On Call");
+  const assignableItems = WORK_ITEMS.filter((i) => !assignedItemIds.has(i.id));
+  const assignFiltered = assignableItems.filter((i) => assignFilter === "All" || i.type === assignFilter);
   const openEscalations = escalations.filter((e) => e.status !== "Resolved");
   const queuedQa = qaItems.filter((i) => i.type === qaTab && i.score === null);
   const nowLabel = "Monday, September 25, 2026";
@@ -375,7 +493,6 @@ export default function SupervisorDashboard() {
                               <td>{a.onCallFor}</td>
                               <td>
                                 <span className="badge badge-in-progress">Live</span>
-                                {a.onCallFor === "05:12" && <span className="badge badge-escalated" style={{ marginLeft: 6 }}>Escalated</span>}
                               </td>
                             </tr>
                           );
@@ -401,9 +518,11 @@ export default function SupervisorDashboard() {
                       </div>
                     ))}
                   </div>
-                  <button type="button" className="btn btn-ghost" style={{ marginTop: "var(--spacing-3)" }} onClick={() => setNavItem("escalations")}>
-                    View all escalations <ChevronRight size={14} />
-                  </button>
+                  {openEscalations.length > 3 && (
+                    <button type="button" className="btn btn-ghost" style={{ marginTop: "var(--spacing-3)" }} onClick={() => setNavItem("escalations")}>
+                      View all escalations <ChevronRight size={14} />
+                    </button>
+                  )}
                 </Card>
               </div>
 
@@ -455,14 +574,14 @@ export default function SupervisorDashboard() {
           {/* ═══════════════ AGENTS ═══════════════ */}
           {navItem === "agents" && (
             <>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--spacing-3)", marginBottom: "var(--spacing-5)" }}>
-                <div className="search-input-wrap" style={{ maxWidth: 320 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--spacing-8)", marginBottom: "var(--spacing-5)", backgroundColor: "var(--color-on-primary-color)", padding: "12px 16px", borderRadius: "var(--radius-lg)", boxShadow: "var(--elevation-1)" }}>
+                <div className="search-input-wrap" style={{ flex: 1, minWidth: 260 }}>
                   <Search size={15} className="search-icon" />
                   <input type="text" placeholder="Search agents..." value={agentSearch} onChange={(e) => setAgentSearch(e.target.value)} />
                 </div>
                 <div style={{ display: "flex", gap: "var(--spacing-3)" }}>
                   <button className="btn btn-ghost" onClick={() => showToast("Assignee filter coming online with live data.")}><Filter size={14} /> Filter</button>
-                  <button className="btn btn-primary" onClick={() => showToast("Invite flow opens when authentication is live.")}><UserPlus size={14} /> Add Agent</button>
+                  <button className="btn btn-primary" onClick={openInvite}><UserPlus size={14} /> Add Agent</button>
                 </div>
               </div>
 
@@ -483,8 +602,8 @@ export default function SupervisorDashboard() {
                   </thead>
                   <tbody>
                     {(agentSearch
-                      ? TEAM.filter((a) => a.name.toLowerCase().includes(agentSearch.toLowerCase()))
-                      : TEAM
+                      ? team.filter((a) => a.name.toLowerCase().includes(agentSearch.toLowerCase()))
+                      : team
                     ).map((agent) => (
                       <tr key={agent.id}>
                         <td><AgentPill name={agent.name} initials={agent.initials} color={agent.color} /></td>
@@ -536,7 +655,7 @@ export default function SupervisorDashboard() {
                         <div className="progress-bar-track">
                           <div className="progress-bar-fill" style={{ width: `${Math.min(100, (a.workload / 10) * 100)}%`, backgroundColor: a.workload >= 7 ? "#F68B1E" : a.workload >= 9 ? "var(--color-error-color)" : "var(--color-primary-color)" }} />
                         </div>
-                        <button className="btn btn-ghost" style={{ width: "100%", marginTop: "var(--spacing-3)", padding: "6px 10px", fontSize: 12 }} onClick={() => showToast(`Work assigned to ${a.name}.`)}>
+                        <button className="btn btn-ghost" style={{ width: "100%", marginTop: "var(--spacing-3)", padding: "6px 10px", fontSize: 12 }} onClick={() => openAssign(a)}>
                           <Zap size={13} /> Assign Work
                         </button>
                       </div>
@@ -630,7 +749,7 @@ export default function SupervisorDashboard() {
                     {LIVE_CALLS.map((c) => (
                       <tr key={c.id}>
                         <td>
-                          {(() => { const a = TEAM.find((x) => x.name === c.agent); return a ? <AgentPill name={a.name} initials={a.initials} color={a.color} /> : c.agent; })()}
+                          {(() => { const a = team.find((x) => x.name === c.agent); return a ? <AgentPill name={a.name} initials={a.initials} color={a.color} /> : c.agent; })()}
                         </td>
                         <td><PrincipalBadge principal={c.principal} size={18} /></td>
                         <td>{c.customer}</td>
@@ -986,7 +1105,7 @@ export default function SupervisorDashboard() {
                         </tr>
                       </thead>
                       <tbody>
-                        {TEAM.map((a) => (
+                        {team.map((a) => (
                           <tr key={a.id}>
                             <td><AgentPill name={a.name} initials={a.initials} color={a.color} /></td>
                             <td><strong>{a.callsToday}</strong></td>
@@ -1007,6 +1126,174 @@ export default function SupervisorDashboard() {
         </main>
       </div>
 
+      {/* ── Add Agent Modal ── */}
+      {inviteOpen && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-6)" }} onClick={() => setInviteOpen(false)}>
+          <div className="card" style={{ maxWidth: 680, width: "100%", maxHeight: "86vh", overflowY: "auto", margin: 0 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--spacing-4)" }}>
+              <div>
+                <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>Add Agent</h3>
+                <p style={{ fontSize: 12, color: "var(--color-on-surface-variant-color)", margin: "2px 0 0" }}>Invite a specialist and set up their account.</p>
+              </div>
+              <button className="icon-btn" onClick={() => setInviteOpen(false)}><XCircle size={16} /></button>
+            </div>
+
+            <div className="form-group">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-4)" }}>
+                <div className="form-field">
+                  <label className="form-label">Full Name *</label>
+                  <input className="form-input" type="text" placeholder="e.g. Ada Obi" value={invite.fullName} onChange={(e) => setInvite({ ...invite, fullName: e.target.value })} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Email *</label>
+                  <input className="form-input" type="email" placeholder="agent@company.com" value={invite.email} onChange={(e) => setInvite({ ...invite, email: e.target.value })} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Phone Number</label>
+                  <input className="form-input" type="tel" placeholder="+234 800 000 0000" value={invite.phone} onChange={(e) => setInvite({ ...invite, phone: e.target.value })} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Employee ID</label>
+                  <input className="form-input" type="text" placeholder="e.g. EMP-2410" value={invite.employeeId} onChange={(e) => setInvite({ ...invite, employeeId: e.target.value })} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Client Company</label>
+                  <select className="form-input" value={invite.principal} onChange={(e) => setInvite({ ...invite, principal: e.target.value })}>
+                    {INVITE_PRINCIPALS.map((p) => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Role</label>
+                  <select className="form-input" value={invite.role} onChange={(e) => setInvite({ ...invite, role: e.target.value })}>
+                    {AGENT_ROLES.map((r) => <option key={r} value={r}>{r}</option>)}
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Languages Spoken</label>
+                  <input className="form-input" type="text" placeholder="e.g. English, Yoruba" value={invite.languages} onChange={(e) => setInvite({ ...invite, languages: e.target.value })} />
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Start Status</label>
+                  <select className="form-input" value={invite.status} onChange={(e) => setInvite({ ...invite, status: e.target.value as AgentStatus })}>
+                    <option value="Available">Available</option>
+                    <option value="On Break">On Break</option>
+                    <option value="Offline">Offline</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Password *</label>
+                  <div style={{ position: "relative" }}>
+                    <input className="form-input" type={showPassword ? "text" : "password"} placeholder="Min 8 characters" value={invite.password} onChange={(e) => setInvite({ ...invite, password: e.target.value })} style={{ paddingRight: 40 }} />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((s) => !s)}
+                      style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--color-on-surface-variant-color)", padding: 4, display: "inline-flex" }}
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label className="form-label">Confirm Password *</label>
+                  <input className="form-input" type={showPassword ? "text" : "password"} placeholder="Re-enter password" value={invite.confirmPassword} onChange={(e) => setInvite({ ...invite, confirmPassword: e.target.value })} />
+                </div>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "var(--spacing-3)", borderRadius: "var(--radius-md)", backgroundColor: "var(--color-surface-container-low-color)" }}>
+                <input type="checkbox" id="send-invite" checked={invite.sendInvite} onChange={(e) => setInvite({ ...invite, sendInvite: e.target.checked })} style={{ width: 16, height: 16, accentColor: "var(--color-primary-color)", cursor: "pointer" }} />
+                <label htmlFor="send-invite" style={{ fontSize: 13, cursor: "pointer", margin: 0 }}>Email the login credentials to this agent</label>
+              </div>
+
+              {inviteError && (
+                <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 12px", borderRadius: "var(--radius-md)", backgroundColor: "var(--color-error-container-color)", color: "var(--color-error-color)", fontSize: 13 }}>
+                  <AlertTriangle size={15} /> {inviteError}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                <button className="btn btn-ghost" onClick={() => setInviteOpen(false)}>Cancel</button>
+                <button className="btn btn-primary" onClick={submitInvite}><UserPlus size={14} /> Add Agent</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Assign Work Modal ── */}
+      {assignAgent && (
+        <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-6)" }} onClick={() => setAssignAgent(null)}>
+          <div className="card" style={{ maxWidth: 640, width: "100%", maxHeight: "82vh", overflowY: "auto", margin: 0 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--spacing-4)" }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-2)", marginBottom: 4 }}>
+                  <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>Assign Work</h3>
+                  <AgentPill name={assignAgent.name} initials={assignAgent.initials} color={assignAgent.color} size={28} />
+                </div>
+                <div style={{ fontSize: 12, color: "var(--color-on-surface-variant-color)", margin: 0 }}>{assignAgent.name} &middot; <PrincipalBadge principal={assignAgent.principal} size={14} /> &middot; {assignAgent.workload} active</div>
+              </div>
+              <button className="icon-btn" onClick={() => setAssignAgent(null)}><XCircle size={16} /></button>
+            </div>
+
+            <div style={{ display: "flex", gap: "var(--spacing-2)", marginBottom: "var(--spacing-4)" }}>
+              {(["All", "Ticket", "Call"] as const).map((f) => (
+                <button
+                  key={f}
+                  type="button"
+                  className={`btn btn-ghost ${assignFilter === f ? "" : ""}`}
+                  onClick={() => setAssignFilter(f)}
+                  style={{ padding: "4px 12px", fontSize: 12, fontWeight: 600, borderColor: assignFilter === f ? "var(--color-primary-color)" : "var(--color-outline-variant-color)", color: assignFilter === f ? "var(--color-primary-color)" : "var(--color-on-surface-color)" }}
+                >
+                  {f}{f !== "All" && ` (${assignableItems.filter((i) => i.type === f).length})`}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-3)" }}>
+              {assignFiltered.length === 0 ? (
+                <div style={{ padding: "24px", textAlign: "center", color: "var(--color-on-surface-variant-color)", fontSize: 13, border: "1px dashed var(--color-outline-variant-color)", borderRadius: "var(--radius-md)" }}>
+                  No pending {assignFilter === "All" ? "work items" : `${assignFilter.toLowerCase()}s`} to assign.
+                </div>
+              ) : (
+                assignFiltered.map((i) => {
+                  const checked = assignedIds.has(i.id);
+                  return (
+                    <div
+                      key={i.id}
+                      onClick={() => toggleAssignItem(i.id)}
+                      style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3)", padding: "12px", border: `1.5px solid ${checked ? "var(--color-primary-color)" : "var(--color-outline-variant-color)"}`, borderRadius: "var(--radius-md)", cursor: "pointer", backgroundColor: checked ? "var(--color-surface-container-low-color)" : "transparent" }}
+                    >
+                      <input type="checkbox" checked={checked} onChange={() => toggleAssignItem(i.id)} style={{ width: 16, height: 16, accentColor: "var(--color-primary-color)", cursor: "pointer", flexShrink: 0 }} />
+                      <div style={{ width: 30, height: 30, borderRadius: "var(--radius-md)", backgroundColor: i.type === "Call" ? "#fdf1e0" : "#e8f0fe", color: i.type === "Call" ? "#F68B1E" : "#1B6EF3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        {i.type === "Call" ? <PhoneCall size={14} /> : <FileText size={14} />}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p style={{ fontSize: 13, fontWeight: 500, margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
+                          {i.type} {i.id.replace(/\D/g, "")}
+                          <span className={`badge ${i.priority === "Critical" || i.priority === "High" ? "badge-high" : "badge-medium"}`} style={{ fontSize: 10 }}>{i.priority}</span>
+                        </p>
+                        <p style={{ fontSize: 12, color: "var(--color-on-surface-variant-color)", margin: "2px 0 0", lineHeight: 1.4, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{i.title} &middot; {i.customer}</p>
+                      </div>
+                      <PrincipalBadge principal={i.principal} size={14} />
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "var(--spacing-5)" }}>
+              <span style={{ fontSize: 13, color: "var(--color-on-surface-variant-color)" }}>{assignedIds.size} selected</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button className="btn btn-ghost" onClick={() => setAssignAgent(null)}>Cancel</button>
+                <button className="btn btn-primary" disabled={assignedIds.size === 0} onClick={confirmAssign}>
+                  <Zap size={14} /> Assign {assignedIds.size > 0 ? `${assignedIds.size} item${assignedIds.size > 1 ? "s" : ""}` : "Work"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── QA Scorecard Modal ── */}
       {scoreItem && (
         <div style={{ position: "fixed", inset: 0, backgroundColor: "rgba(0,0,0,0.45)", zIndex: 1400, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--spacing-6)" }} onClick={() => setScoreItem(null)}>
@@ -1014,7 +1301,7 @@ export default function SupervisorDashboard() {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--spacing-4)" }}>
               <div>
                 <h3 style={{ fontSize: "18px", fontWeight: 700, margin: 0 }}>Score {scoreItem.type} {scoreItem.id}</h3>
-                <p style={{ fontSize: 12, color: "var(--color-on-surface-variant-color)", margin: "2px 0 0" }}>{scoreItem.agent} &middot; <PrincipalBadge principal={scoreItem.principal} size={14} /></p>
+                <div style={{ fontSize: 12, color: "var(--color-on-surface-variant-color)", margin: "2px 0 0" }}>{scoreItem.agent} &middot; <PrincipalBadge principal={scoreItem.principal} size={14} /></div>
               </div>
               <button className="icon-btn" onClick={() => setScoreItem(null)}><XCircle size={16} /></button>
             </div>
